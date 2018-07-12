@@ -105,3 +105,48 @@ void SerialSendThread::setMavJoySelect(char flag)
     this->mavJoySelect = flag;
 }
 
+void SerialSendThread::request_send_data(void)
+{
+    mavlink_request_data_stream_t r_send_data;
+
+    r_send_data.req_message_rate = 2;
+    r_send_data.req_stream_id = 2;
+    r_send_data.start_stop = 1;
+    r_send_data.target_component = 0x01;
+    r_send_data.target_system = 0x01;
+
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+
+    r_send_data.req_stream_id = 6;
+    r_send_data.req_message_rate = 2;
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+
+    r_send_data.req_stream_id = 10;
+    r_send_data.req_message_rate = 4;
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+
+    r_send_data.req_stream_id = 11;
+    r_send_data.req_message_rate = 4;
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+
+        r_send_data.req_stream_id = 12;
+    r_send_data.req_message_rate = 2;
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+
+        r_send_data.req_stream_id = 1;
+    r_send_data.req_message_rate = 2;
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+
+    r_send_data.req_stream_id = 3;
+    r_send_data.req_message_rate = 2;
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+    mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
+
+}
+

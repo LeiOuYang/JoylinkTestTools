@@ -36,6 +36,28 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->serialRecThread, SIGNAL(updateMissionStatus1(QString)), this, SLOT(updateMissionStatus(QString)));
     connect(this->serialRecThread, SIGNAL(updateTextTextEdit1(QString)), this, SLOT(updateTextTextEdit(QString)));
     connect(this->serialRecThread, SIGNAL(updateArmLabel(QString)), this, SLOT(updateArmLabelText(QString)));
+    connect(this->serialRecThread, SIGNAL(sendMessage(int,QString)), this, SLOT(updateUiArray(int, QString)));
+}
+
+void MainWindow::updateUiArray(int id, QString str)
+{
+    switch(id)
+    {
+        case 1:
+        {
+            ui->simplePlainTextEdit->setPlainText("");
+            ui->simplePlainTextEdit->setPlainText(str);
+            break;
+        }
+        case 24:
+        {
+            ui->GpsPlainTextEdit->setPlainText("");
+            ui->GpsPlainTextEdit->setPlainText(str);
+            break;
+        }
+
+        default: break;
+    }
 
 }
 
@@ -130,7 +152,10 @@ qDebug()<<"port name: "<<portName<<"\tbaudRate: "<<baudRateString.toLong();
                 if(this->serialRecThread->isRunning()==false)
                     this->serialRecThread->start();
                 if(this->serialSendThread->isRunning()==false)
+                {
                     this->serialSendThread->start();
+                    this->serialSendThread->request_send_data();
+                }
 qDebug()<<"open the serial";
 
             }else

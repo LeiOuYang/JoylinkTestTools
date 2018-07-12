@@ -71,6 +71,7 @@ private slots:
     void on_rightPushButton_clicked();
     void on_UpPushButton_clicked();
     void on_DownPushButton_clicked();
+    void updateUiArray(int, QString);
 };
 
 #endif // MAINWINDOW_H

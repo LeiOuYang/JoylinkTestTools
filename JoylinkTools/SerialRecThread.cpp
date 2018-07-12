@@ -350,7 +350,7 @@ void SerialRecThread::run()
                             //qDebug()<<"mavlink";
                             if(mavlink_frame_char(MAVLINK_COMM_1, byteArray.at(i), &m_message, &m_mavlink_status)==MAVLINK_FRAMING_OK)
                             {
-                                //qDebug()<<"mavlink frame";
+                                //qDebug()<<QString::number(m_message.msgid,10);
                                 switch(m_message.msgid)
                                 {
                                     case MAVLINK_MSG_ID_HEARTBEAT: /*#0*/
@@ -403,6 +403,68 @@ void SerialRecThread::run()
                                         break;
 
                                     }
+
+                                    case MAVLINK_MSG_ID_GPS_RAW_INT: /*#24*/
+                                    {
+                                        qDebug()<<"GPS RAW int";
+                                        uint64_t time_usec = mavlink_msg_gps_raw_int_get_time_usec(&m_message); /* 系统运行时间  微秒 */
+                                        int32_t lat = mavlink_msg_gps_raw_int_get_lat(&m_message); /* 椭球  纬度*10的7次方 */
+                                        int32_t lon = mavlink_msg_gps_raw_int_get_lon(&m_message); /* 椭球  经度*10的7次方 */
+                                        int32_t alt = mavlink_msg_gps_raw_int_get_alt(&m_message); /* 平均海拔高度， 注意不是椭球高度  *1000*/
+                                        uint16_t eph = mavlink_msg_gps_raw_int_get_eph(&m_message); /* 水平精度 GPS HDOP horizontal dilution of position (unitless). If unknown, set to: UINT16_MAX*/
+                                        uint16_t epv = mavlink_msg_gps_raw_int_get_epv(&m_message); /* 垂直精度 GPS VDOP vertical dilution of position (unitless). If unknown, set to: UINT16_MAX*/
+                                        uint16_t vel = mavlink_msg_gps_raw_int_get_vel(&m_message); /* GPS地速 GPS ground speed (m/s * 100). If unknown, set to: UINT16_MAX*/
+                                        uint16_t cog = mavlink_msg_gps_raw_int_get_cog(&m_message); /* Course over ground (NOT heading, but direction of movement) in degrees * 100, 0.0..359.99 degrees. If unknown, set to: UINT16_MAX*/
+                                        uint8_t fix_type = mavlink_msg_gps_raw_int_get_fix_type(&m_message); /* 定位类型 See the JOY_GPS_FIX_TYPE enum.*/
+                                        uint8_t satellites_visible = mavlink_msg_gps_raw_int_get_satellites_visible(&m_message); /* 可见卫星个数. If unknown, set to 255*/
+                                        QString fix_type_string = "";
+                                        if(fix_type==GPS_FIX_TYPE_NO_GPS)
+                                        {
+                                            fix_type_string = "NOGPS";
+                                        }else if(fix_type==GPS_FIX_TYPE_NO_FIX)
+                                        {
+                                            fix_type_string = "NOFIX";
+                                        }else if(fix_type==GPS_FIX_TYPE_2D_FIX)
+                                        {
+                                            fix_type_string = "2DFIX";
+                                        }else if(fix_type==GPS_FIX_TYPE_3D_FIX)
+                                        {
+                                            fix_type_string = "3DFIX";
+                                        }else if(fix_type==GPS_FIX_TYPE_DGPS)
+                                        {
+                                            fix_type_string = "DGPS";
+                                        }
+
+                                        parseString = "";
+                                        parseString += "GPS POS>>>\r\ntime: "+QString::number(time_usec,10)+"us\r\n"+\
+                                                       "纬度: "+QString::number(lat,10)+"\r\n"+\
+                                                       "精度: "+QString::number(lon,10)+"\r\n"+\
+                                                       "高度: "+QString::number(alt,10)+"mm\r\n"+\
+                                                       "水平精度: "+QString::number(eph,10)+"\r\n"+\
+                                                       "航向角度: "+QString::number(cog,10)+"deg\r\n"+\
+                                                       "固定类型: "+fix_type_string+"\r\n" +\
+                                                       "可见卫星数: "+QString::number(satellites_visible,10)+" ";
+                                        msgString = "";
+                                        msgString += QString::number(lat,10)+"\r\n"+QString::number(lon,10)+"\r\n"+QString::number(alt,10)+"\r\n"+\
+                                                QString::number(eph,10)+"\r\n"+fix_type_string;
+                                        emit sendMessage(24, parseString);
+                                        break;
+                                    }
+
+                                    case MAVLINK_MSG_ID_SYS_STATUS:
+                                    {
+                                         qDebug()<<"sys status";
+                                        mavlink_sys_status_t sys;
+                                        uint16_t voltage_battery = mavlink_msg_sys_status_get_voltage_battery(&m_message); /*< Battery voltage, in millivolts (1 = 1 millivolt)*/
+                                        int16_t current_battery = mavlink_msg_sys_status_get_current_battery(&m_message); /*< Battery current, in 10*milliamperes (1 = 10 milliampere), -1: autopilot does not measure the current*/
+                                        int8_t battery_remaining = mavlink_msg_sys_status_get_battery_remaining(&m_message); /*< Remaining battery energy: (0%: 0, 100%: 100), -1: autopilot estimate the remaining battery*/
+
+                                        msgString = "";
+                                        msgString += "电压： "+QString::number(voltage_battery,10)+"mV\r\n"+"电流： "+QString::number(current_battery*10,10)+"mA\r\n"+"电压余量："+QString::number(battery_remaining,10)+"%\r\n";
+                                        emit sendMessage(1, msgString);
+                                        break;
+                                    }
+
                                     default: break;
 
                                }

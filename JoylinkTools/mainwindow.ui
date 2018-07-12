@@ -1116,9 +1116,9 @@
       <property name="geometry">
        <rect>
         <x>630</x>
-        <y>80</y>
+        <y>60</y>
         <width>151</width>
-        <height>151</height>
+        <height>181</height>
        </rect>
       </property>
      </widget>
@@ -1126,9 +1126,9 @@
       <property name="geometry">
        <rect>
         <x>830</x>
-        <y>80</y>
+        <y>60</y>
         <width>151</width>
-        <height>151</height>
+        <height>191</height>
        </rect>
       </property>
      </widget>

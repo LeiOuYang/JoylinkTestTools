@@ -31,6 +31,7 @@ public:
     char getRunFlag(void);
     char getMavJoySelect(void);
     void setMavJoySelect(char flag);
+    void request_send_data();
     //QString charToHex(quint8 c);
 };
 
