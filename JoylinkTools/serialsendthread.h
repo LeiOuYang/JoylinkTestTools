@@ -24,6 +24,7 @@ public:
     char runFlag;
     char hexCharFlag; /*0-hex,1-char*/
     char mavJoySelect; /*0-mav, 1-joy*/
+    char compass_cal_mask;
 public:
     void run(void);
     void setRunFlag(char flag);

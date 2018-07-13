@@ -72,6 +72,11 @@ private slots:
     void on_UpPushButton_clicked();
     void on_DownPushButton_clicked();
     void updateUiArray(int, QString);
+    void on_pushButton_clicked();
+    void on_compassCalButton_clicked();
+    void on_compassAllRadioButton_clicked();
+    void on_compassExtraRadioButton_clicked();
+    void on_saveCompassCalPushButton_clicked();
 };
 
 #endif // MAINWINDOW_H

@@ -10,7 +10,8 @@ LoopQueue sendMavlinkDataQueue;
 SerialSendThread::SerialSendThread():
     runFlag(1),
     mavJoySelect(1),
-    hexCharFlag(1) /*0-hex,1-char*/
+    hexCharFlag(1),/*0-hex,1-char*/
+    compass_cal_mask(0) /* 0-all   1-extera compass */
 {
     initCharLoopQueue(&sendJoylinkDataQueue, joylink_buff, 1024*3, 0);
     initCharLoopQueue(&sendMavlinkDataQueue, mavlink_buff, 1024*3, 0);
@@ -133,12 +134,12 @@ void SerialSendThread::request_send_data(void)
     mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
     mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
 
-        r_send_data.req_stream_id = 12;
+    r_send_data.req_stream_id = 12;
     r_send_data.req_message_rate = 2;
     mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
     mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
 
-        r_send_data.req_stream_id = 1;
+    r_send_data.req_stream_id = 1;
     r_send_data.req_message_rate = 2;
     mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);
     mavlink_msg_request_data_stream_send_struct(MAVLINK_COMM_1, &r_send_data);

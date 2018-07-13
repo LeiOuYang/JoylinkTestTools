@@ -436,7 +436,7 @@ void SerialRecThread::run()
                                         }
 
                                         parseString = "";
-                                        parseString += "GPS POS>>>\r\ntime: "+QString::number(time_usec,10)+"us\r\n"+\
+                                        parseString += /*"time: "+QString::number(time_usec,10)+"us\r\n"+\*/
                                                        "纬度: "+QString::number(lat,10)+"\r\n"+\
                                                        "精度: "+QString::number(lon,10)+"\r\n"+\
                                                        "高度: "+QString::number(alt,10)+"mm\r\n"+\
@@ -460,8 +460,103 @@ void SerialRecThread::run()
                                         int8_t battery_remaining = mavlink_msg_sys_status_get_battery_remaining(&m_message); /*< Remaining battery energy: (0%: 0, 100%: 100), -1: autopilot estimate the remaining battery*/
 
                                         msgString = "";
-                                        msgString += "电压： "+QString::number(voltage_battery,10)+"mV\r\n"+"电流： "+QString::number(current_battery*10,10)+"mA\r\n"+"电压余量："+QString::number(battery_remaining,10)+"%\r\n";
+                                        msgString += "电压： "+QString::number(voltage_battery,10)+"mV\r\n"+"电流： "+QString::number(current_battery*10,10)+"mA\r\n"+"电压余量："+QString::number(battery_remaining,10)+"%";
                                         emit sendMessage(1, msgString);
+                                        break;
+                                    }
+
+                                     case MAVLINK_MSG_ID_COMMAND_ACK:
+                                    {
+                                        mavlink_command_ack_t command;
+                                        command.command = mavlink_msg_command_ack_get_command(&m_message);
+                                        command.result = mavlink_msg_command_ack_get_result(&m_message);
+                                        msgString = "";
+                                        QString tstr = "";
+                                        switch ( command.result ) {
+
+                                        case MAV_RESULT_ACCEPTED:
+                                            tstr = "成功接收指令";
+                                            break;
+                                        case MAV_RESULT_TEMPORARILY_REJECTED:
+                                            tstr = "临时拒绝";
+                                            break;
+                                        case MAV_RESULT_DENIED:
+                                            tstr = "被拒绝";
+                                            break;
+                                        case MAV_RESULT_UNSUPPORTED:
+                                            tstr = "指令不支持";
+                                            break;
+                                        case MAV_RESULT_FAILED:
+                                            tstr = "指令错误";
+                                            break;
+                                        default:
+                                            tstr = "指令错误";
+                                            break;
+                                        }
+                                        msgString += "控制指令应答： ID->"+QString::number(command.command,10)+"  "+tstr;
+                                        emit sendMessage(77, msgString);
+                                        break;
+                                    }
+                                    case MAVLINK_MSG_ID_MAG_CAL_REPORT:
+                                    {
+                                        mavlink_mag_cal_report_t mag_report;
+                                        float ofs_x = mavlink_msg_mag_cal_report_get_ofs_x(&m_message); /*< X offset*/
+                                        float ofs_y =  mavlink_msg_mag_cal_report_get_ofs_y(&m_message); /*< Y offset*/
+                                        float ofs_z =  mavlink_msg_mag_cal_report_get_ofs_z(&m_message); /*< Z offset*/
+                                        uint8_t compass_id =  mavlink_msg_mag_cal_report_get_compass_id(&m_message); /*< Compass being calibrated*/
+                                        uint8_t cal_mask =  mavlink_msg_mag_cal_report_get_cal_mask(&m_message); /*< Bitmask of compasses being calibrated*/
+                                        uint8_t cal_status =  mavlink_msg_mag_cal_report_get_cal_status(&m_message); /*< Status (see MAG_CAL_STATUS enum)*/
+                                        uint8_t autosaved =  mavlink_msg_mag_cal_report_get_autosaved(&m_message); /*< 0=requires a MAV_CMD_DO_ACCEPT_MAG_CAL, 1=saved to parameters*/
+
+                                        msgString = "";
+                                        msgString +="ID "+QString::number(compass_id,10)+"\r\noff_x:"+QString::number(ofs_x,'f', 2)+" off_y:"+QString::number(ofs_y,'f', 2)+" off_z:"+QString::number(ofs_z,'f', 2);
+                                        if(autosaved==1) msgString += "  auto save";
+                                        emit sendMessage(192, msgString);
+                                        emit sendMessage(191, QString::number(compass_id,10)+QString::number(100,10));
+                                        break;
+                                    }
+
+                                     case MAVLINK_MSG_ID_MAG_CAL_PROGRESS:
+                                     {
+                                        uint8_t compass_id = mavlink_msg_mag_cal_progress_get_compass_id(&m_message); /*< Compass being calibrated*/
+                                        uint8_t cal_mask = mavlink_msg_mag_cal_progress_get_cal_mask(&m_message); /*< Bitmask of compasses being calibrated*/
+                                        uint8_t cal_status = mavlink_msg_mag_cal_progress_get_cal_status(&m_message); /*< Status (see MAG_CAL_STATUS enum)*/
+                                        uint8_t attempt = mavlink_msg_mag_cal_progress_get_attempt(&m_message); /*< Attempt number*/
+                                        uint8_t completion_pct = mavlink_msg_mag_cal_progress_get_completion_pct(&m_message); /*< Completion percentage*/
+
+                                        emit sendMessage(191, QString::number(compass_id,10)+QString::number(completion_pct,10));
+                                        break;
+                                     }
+
+                                    case MAVLINK_MSG_ID_VFR_HUD:
+                                    {
+                                        //float airspeed; /*< Current airspeed in m/s*/
+                                        float groundspeed = mavlink_msg_vfr_hud_get_groundspeed(&m_message); /*< Current ground speed in m/s*/
+                                        float alt = mavlink_msg_vfr_hud_get_alt(&m_message); /*< Current altitude (MSL), in meters*/
+                                        //float climb; /*< Current climb rate in meters/second*/
+                                        int16_t heading = mavlink_msg_vfr_hud_get_heading(&m_message); /*< Current heading in degrees, in compass units (0..360, 0=north)*/
+                                        uint16_t throttle = mavlink_msg_vfr_hud_get_throttle(&m_message); /*< Current throttle setting in integer percent, 0 to 100*/
+
+                                        msgString = "";
+                                        msgString +="高度 "+QString::number(alt,'f',2)+"米\r\n地速 "+QString::number(groundspeed, 'f', 2)+\
+                                                    "m/s\r\n航向 "+QString::number(heading, 10)+"\r\n油门 "+QString::number(throttle, 10)+"%";
+
+                                        emit sendMessage(74, msgString);
+                                        break;
+                                    }
+
+                                    case MAVLINK_MSG_ID_EKF_STATUS_REPORT:
+                                    {
+                                        //float velocity_variance; /*< Velocity variance*/
+                                        //float pos_horiz_variance; /*< Horizontal Position variance*/
+                                        //float pos_vert_variance; /*< Vertical Position variance*/
+                                        float compass_variance = mavlink_msg_ekf_status_report_get_compass_variance(&m_message); /*< Compass variance*/
+                                        //float terrain_alt_variance; /*< Terrain Altitude variance*/
+
+                                        msgString = "";
+                                        msgString +="Compass healthy: "+QString::number(compass_variance,'f',2);
+                                        emit sendMessage(193, msgString);
+
                                         break;
                                     }
 

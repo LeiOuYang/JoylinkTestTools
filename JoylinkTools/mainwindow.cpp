@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->serialSendThread = new SerialSendThread();
     this->serialPort = new QSerialPort();
     this->parseTextEditUpdateEnable = 1;
-    this->srcTextEditUpdateEnable = 1;
+    this->srcTextEditUpdateEnable = 0;
 
 //    QTime time = QTime::currentTime();
 //    qDebug()<<QString::number(time.msec(),10)+"";
@@ -45,16 +45,79 @@ void MainWindow::updateUiArray(int id, QString str)
     {
         case 1:
         {
+            ui->simplePlainTextEdit->setReadOnly(false);
             ui->simplePlainTextEdit->setPlainText("");
             ui->simplePlainTextEdit->setPlainText(str);
+            ui->simplePlainTextEdit->setReadOnly(true);
             break;
         }
         case 24:
         {
+            ui->GpsPlainTextEdit->setReadOnly(false);
             ui->GpsPlainTextEdit->setPlainText("");
             ui->GpsPlainTextEdit->setPlainText(str);
+            ui->GpsPlainTextEdit->setReadOnly(true);
             break;
         }
+        case 77:
+        {
+            ui->commandAckLabel->setText("");
+            ui->commandAckLabel->setText(str);
+            break;
+        }
+
+        case 191:
+        {
+        qDebug()<<"mag cal progress..."+str;
+            bool b = false;
+            char id = 0;
+            id = (char)str.at(0).digitValue();
+            uint32_t d = (uint32_t)str.trimmed().toFloat(&b);
+            if(!b) return;
+            if(id==0)
+                ui->compassCalId1ProgressBar->setValue(d-id*100);
+            else if(id=1)
+                ui->compassCalId2ProgressBar->setValue(d-id*100);
+            break;
+        }
+        case 192:
+        {
+            char id = 0;
+            id = (char)str.at(3).digitValue();
+
+            if(id==0)
+            {
+                ui->compassId1OffPlainTextEdit->setReadOnly(false);
+                ui->compassId1OffPlainTextEdit->setPlainText("");
+                ui->compassId1OffPlainTextEdit->setPlainText(str);
+                ui->compassId1OffPlainTextEdit->setReadOnly(true);
+            }else if(id==1)
+            {
+                ui->compassId2OffPlainTextEdit->setReadOnly(false);
+                ui->compassId2OffPlainTextEdit->setPlainText("");
+                ui->compassId2OffPlainTextEdit->setPlainText(str);
+                ui->compassId2OffPlainTextEdit->setReadOnly(true);
+            }
+            break;
+        }
+
+        case 193:
+        {
+            ui->compassHealthyLabel->setText("");
+            ui->compassHealthyLabel->setText(str);
+            break;
+        }
+
+        case 74:
+        {
+            ui->HUDTextEdit->setReadOnly(false);
+            ui->HUDTextEdit->setText("");
+            ui->HUDTextEdit->setText(str);
+            ui->HUDTextEdit->setReadOnly(true);
+            break;
+        }
+
+
 
         default: break;
     }
@@ -67,7 +130,7 @@ void MainWindow::appendTextSrcTextEdit(QString str)
     if(ui->stopSrcButton->text().trimmed()=="start") return;
     static int count = 0;
     ++count;
-    if(count>10)
+    if(count>8)
     {
         ui->dataSrcTextEdit->clear();
         count = 0;
@@ -90,6 +153,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::updateSerialComBox()
 {
+    ui->serialComboBox->clear();
     QList<QSerialPortInfo> portList = QSerialPortInfo::availablePorts();
     QSerialPortInfo portInfo;
 qDebug()<<portList.size();
@@ -1096,5 +1160,84 @@ void MainWindow::on_DownPushButton_clicked()
         pos_target.yaw = 0; pos_target.yaw_rate = 0;
 
         mavlink_msg_set_position_target_local_ned_send_struct(MAVLINK_COMM_1, &pos_target);
+    }
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    if(this->serialPort->isOpen()) return;
+
+    updateSerialComBox();
+}
+
+void MainWindow::on_compassCalButton_clicked()
+{
+    if(!this->serialPort->isOpen()) return;
+
+    if(this->serialSendThread->getMavJoySelect()==1)
+    {
+        qDebug()<<"joylink mag cal";
+
+    }else if(this->serialSendThread->getMavJoySelect()==0)
+    {
+        qDebug()<<"mag cal";
+        mavlink_command_long_t command;
+
+        command.command = MAV_CMD_DO_START_MAG_CAL;
+        if(this->serialSendThread->compass_cal_mask==0)
+        {
+            ui->compassId1OffPlainTextEdit->setPlainText("Compass cal...");
+            ui->compassId2OffPlainTextEdit->setPlainText("Compass cal...");
+        }else if(this->serialSendThread->compass_cal_mask==1)
+        {
+            ui->compassId1OffPlainTextEdit->setPlainText("Compass cal...");
+        }
+        qDebug()<<"send compass cal...";
+        command.param1 = this->serialSendThread->compass_cal_mask;
+        command.param2 = 1; command.param3 = 1;
+        command.param4 = 0.0; command.param5 = 0.0;
+        command.param6 = 0.0; command.param7 = 0.0;
+        command.target_component = 0x01;
+        command.target_system = 0x01;
+        command.confirmation = 0;
+
+        mavlink_msg_command_long_send_struct(MAVLINK_COMM_1, &command);
+    }
+}
+
+void MainWindow::on_compassAllRadioButton_clicked()
+{
+    this->serialSendThread->compass_cal_mask = 0;
+}
+
+void MainWindow::on_compassExtraRadioButton_clicked()
+{
+    this->serialSendThread->compass_cal_mask = 1;
+}
+
+void MainWindow::on_saveCompassCalPushButton_clicked()
+{
+    if(!this->serialPort->isOpen()) return;
+
+    if(this->serialSendThread->getMavJoySelect()==1)
+    {
+        qDebug()<<"joylink mag cal OK";
+
+    }else if(this->serialSendThread->getMavJoySelect()==0)
+    {
+        qDebug()<<"mag cal Accept OK";
+        mavlink_command_long_t command;
+
+        command.command = MAV_CMD_DO_ACCEPT_MAG_CAL;
+
+        command.param1 = this->serialSendThread->compass_cal_mask;
+        command.param2 = 0; command.param3 = 0;
+        command.param4 = 0.0; command.param5 = 0.0;
+        command.param6 = 0.0; command.param7 = 0.0;
+        command.target_component = 0x01;
+        command.target_system = 0x01;
+        command.confirmation = 0;
+
+        mavlink_msg_command_long_send_struct(MAVLINK_COMM_1, &command);
     }
 }
