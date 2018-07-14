@@ -998,7 +998,7 @@ void MainWindow::on_frontPushButton_clicked()
         pos_target.target_component = 1;
         pos_target.coordinate_frame = MAV_FRAME_BODY_OFFSET_NED;
         pos_target.time_boot_ms = 0;
-        pos_target.type_mask = 0b1000000000|0b1000000001;
+        pos_target.type_mask = 0b0000111111111000;
         pos_target.afx = pos_target.afy = pos_target.afz = 0.0;
         pos_target.vx = pos_target.vy = pos_target.vz = 0.0;
         pos_target.x = distance;
@@ -1028,7 +1028,7 @@ void MainWindow::on_behindPushButton_clicked()
         pos_target.target_component = 1;
         pos_target.coordinate_frame = MAV_FRAME_BODY_OFFSET_NED;
         pos_target.time_boot_ms = 0;
-        pos_target.type_mask = 0b1000000000|0b1000000001;
+        pos_target.type_mask = 0b0000111111111000;
         pos_target.afx = pos_target.afy = pos_target.afz = 0.0;
         pos_target.vx = pos_target.vy = pos_target.vz = 0.0;
         pos_target.x = -distance;
@@ -1058,7 +1058,7 @@ void MainWindow::on_LeftPushButton_clicked()
         pos_target.target_component = 1;
         pos_target.coordinate_frame = MAV_FRAME_BODY_OFFSET_NED;
         pos_target.time_boot_ms = 0;
-        pos_target.type_mask = 0b1000000000|0b1000000010;
+        pos_target.type_mask = 0b0000111111111000;
         pos_target.afx = pos_target.afy = pos_target.afz = 0.0;
         pos_target.vx = pos_target.vy = pos_target.vz = 0.0;
         pos_target.x = 0;
@@ -1089,7 +1089,7 @@ void MainWindow::on_rightPushButton_clicked()
         pos_target.target_component = 1;
         pos_target.coordinate_frame = MAV_FRAME_BODY_OFFSET_NED;
         pos_target.time_boot_ms = 0;
-        pos_target.type_mask = 0b1000000000|0b1000000010;
+        pos_target.type_mask = 0b0000111111111000;
         pos_target.afx = pos_target.afy = pos_target.afz = 0.0;
         pos_target.vx = pos_target.vy = pos_target.vz = 0.0;
         pos_target.x = 0;
@@ -1120,7 +1120,7 @@ void MainWindow::on_UpPushButton_clicked()
         pos_target.target_component = 1;
         pos_target.coordinate_frame = MAV_FRAME_BODY_OFFSET_NED;
         pos_target.time_boot_ms = 0;
-        pos_target.type_mask = 0b1000000000|0b1000000100;
+        pos_target.type_mask = 0b0000111111111000;
         pos_target.afx = pos_target.afy = pos_target.afz = 0.0;
         pos_target.vx = pos_target.vy = pos_target.vz = 0.0;
         pos_target.x = 0;
@@ -1151,7 +1151,7 @@ void MainWindow::on_DownPushButton_clicked()
         pos_target.target_component = 1;
         pos_target.coordinate_frame = MAV_FRAME_BODY_OFFSET_NED;
         pos_target.time_boot_ms = 0;
-        pos_target.type_mask = 0b1000000000|0b1000000100;
+        pos_target.type_mask = 0b0000111111111000;
         pos_target.afx = pos_target.afy = pos_target.afz = 0.0;
         pos_target.vx = pos_target.vy = pos_target.vz = 0.0;
         pos_target.x = 0;
