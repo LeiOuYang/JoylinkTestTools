@@ -117,6 +117,19 @@ void MainWindow::updateUiArray(int id, QString str)
             break;
         }
 
+        case 132:
+        {
+            static unsigned char count = 0;
+            ++count;
+            if(count>2)
+            {
+                ui->proximityTextEdit->setText(str);
+
+                count = 0;
+            }
+            break;
+        }
+
 
 
         default: break;

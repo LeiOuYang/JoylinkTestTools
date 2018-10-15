@@ -560,6 +560,41 @@ void SerialRecThread::run()
                                         break;
                                     }
 
+                                case MAVLINK_MSG_ID_DISTANCE_SENSOR:
+                                {
+                                    uint16_t min_distance; /*< Minimum distance the sensor can measure in centimeters*/
+                                    uint16_t max_distance; /*< Maximum distance the sensor can measure in centimeters*/
+                                    uint16_t current_distance; /*< Current distance reading*/
+                                    uint8_t type; /*< Type from MAV_DISTANCE_SENSOR enum.*/
+                                    uint8_t id; /*< Onboard ID of the sensor*/
+                                    uint8_t orientation; /*< Direction the sensor faces from MAV_SENSOR_ORIENTATION enum.*/
+                                    uint8_t covariance; /*< Measurement covariance in centimeters, 0 for unknown / invalid readings*/
+
+                                    min_distance = mavlink_msg_distance_sensor_get_min_distance(&m_message);
+                                    max_distance = mavlink_msg_distance_sensor_get_max_distance(&m_message);
+                                    current_distance = mavlink_msg_distance_sensor_get_current_distance(&m_message);
+                                    type = mavlink_msg_distance_sensor_get_type(&m_message);
+                                    id = mavlink_msg_distance_sensor_get_id(&m_message);
+                                    orientation = mavlink_msg_distance_sensor_get_orientation(&m_message);
+                                    covariance = mavlink_msg_distance_sensor_get_covariance(&m_message);
+
+                                    QString proximityString = "";
+                                    if(orientation==MAV_SENSOR_ROTATION_NONE && covariance)
+                                    {
+                                       proximityString += "最大距离： "+QString::number(max_distance,10)+"cm" + "最小距离： "+QString::number(min_distance,10) + "cm"\
+                                               + "方向："+QString::number(orientation,10) + "距离：" +QString::number(current_distance,10) + "cm";
+                                    }
+                                    if(orientation==MAV_SENSOR_ROTATION_PITCH_90 && covariance)
+                                    {
+                                        proximityString += "最大距离： "+QString::number(max_distance,10)+"cm" + "最小距离： "+QString::number(min_distance,10) + "cm"\
+                                               + "方向："+QString::number(orientation,10) + "  距离：" +QString::number(current_distance,10);
+                                    }
+                                    if(""!=proximityString)
+                                    emit sendMessage(MAVLINK_MSG_ID_DISTANCE_SENSOR, proximityString);
+
+                                    break;
+                                }
+
                                     default: break;
 
                                }

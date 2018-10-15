@@ -268,7 +268,7 @@
         <x>280</x>
         <y>80</y>
         <width>331</width>
-        <height>391</height>
+        <height>311</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -1673,6 +1673,21 @@
         <string>保存校准</string>
        </property>
       </widget>
+     </widget>
+     <widget class="QTextEdit" name="proximityTextEdit">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>400</y>
+        <width>331</width>
+        <height>81</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>11</pointsize>
+       </font>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
