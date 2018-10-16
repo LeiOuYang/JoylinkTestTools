@@ -268,7 +268,7 @@
         <x>280</x>
         <y>80</y>
         <width>331</width>
-        <height>311</height>
+        <height>281</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -1674,19 +1674,50 @@
        </property>
       </widget>
      </widget>
-     <widget class="QTextEdit" name="proximityTextEdit">
+     <widget class="QTextEdit" name="proximity1TextEdit">
       <property name="geometry">
        <rect>
         <x>280</x>
-        <y>400</y>
+        <y>370</y>
         <width>331</width>
-        <height>81</height>
+        <height>51</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <pointsize>11</pointsize>
+        <family>微软雅黑</family>
+        <pointsize>12</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 127);
+font: 12pt &quot;微软雅黑&quot;;</string>
+      </property>
+     </widget>
+     <widget class="QTextEdit" name="proximity2TextEdit">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>430</y>
+        <width>331</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>12</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(170, 85, 255);
+font: 12pt &quot;微软雅黑&quot;;</string>
       </property>
      </widget>
     </widget>

@@ -123,8 +123,10 @@ void MainWindow::updateUiArray(int id, QString str)
             ++count;
             if(count>2)
             {
-                ui->proximityTextEdit->setText(str);
-
+                if(str.at(0)=='1')
+                    ui->proximity1TextEdit->setText(str);
+                if(str.at(0)=='2')
+                    ui->proximity2TextEdit->setText(str);
                 count = 0;
             }
             break;

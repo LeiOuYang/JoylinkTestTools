@@ -439,11 +439,11 @@ void SerialRecThread::run()
                                         parseString += /*"time: "+QString::number(time_usec,10)+"us\r\n"+\*/
                                                        "纬度: "+QString::number(lat,10)+"\r\n"+\
                                                        "精度: "+QString::number(lon,10)+"\r\n"+\
-                                                       "高度: "+QString::number(alt,10)+"mm\r\n"+\
-                                                       "水平精度: "+QString::number(eph,10)+"\r\n"+\
-                                                       "航向角度: "+QString::number(cog,10)+"deg\r\n"+\
+                                                       "高度: "+QString::number(alt/1000.0)+"米\r\n"+\
+                                                       "水平精度: "+QString::number(eph/100.0)+"\r\n"+\
+                                                       "航向角度: "+QString::number(cog/100.0)+"度\r\n"+\
                                                        "固定类型: "+fix_type_string+"\r\n" +\
-                                                       "可见卫星数: "+QString::number(satellites_visible,10)+" ";
+                                                       "可见卫星数: "+QString::number(satellites_visible,10)+"颗 ";
                                         msgString = "";
                                         msgString += QString::number(lat,10)+"\r\n"+QString::number(lon,10)+"\r\n"+QString::number(alt,10)+"\r\n"+\
                                                 QString::number(eph,10)+"\r\n"+fix_type_string;
@@ -460,7 +460,7 @@ void SerialRecThread::run()
                                         int8_t battery_remaining = mavlink_msg_sys_status_get_battery_remaining(&m_message); /*< Remaining battery energy: (0%: 0, 100%: 100), -1: autopilot estimate the remaining battery*/
 
                                         msgString = "";
-                                        msgString += "电压： "+QString::number(voltage_battery,10)+"mV\r\n"+"电流： "+QString::number(current_battery*10,10)+"mA\r\n"+"电压余量："+QString::number(battery_remaining,10)+"%";
+                                        msgString += "电压： "+QString::number(voltage_battery/1000.0)+"V\r\n"+"电流： "+QString::number(current_battery*10/1000.0)+"mA\r\n"+"电压余量："+QString::number(battery_remaining,10)+"%";
                                         emit sendMessage(1, msgString);
                                         break;
                                     }
@@ -579,18 +579,21 @@ void SerialRecThread::run()
                                     covariance = mavlink_msg_distance_sensor_get_covariance(&m_message);
 
                                     QString proximityString = "";
+
+
                                     if(orientation==MAV_SENSOR_ROTATION_NONE && covariance)
                                     {
-                                       proximityString += "最大距离： "+QString::number(max_distance,10)+"cm" + "最小距离： "+QString::number(min_distance,10) + "cm"\
-                                               + "方向："+QString::number(orientation,10) + "距离：" +QString::number(current_distance,10) + "cm";
+                                       proximityString += QString("1.前方 ") + "最大：" +QString::number(max_distance,10)+"cm" + "最小："+QString::number(min_distance,10) + "cm"\
+                                               +  "距离障碍物:" +QString::number(current_distance,10) + "cm";
                                     }
+
                                     if(orientation==MAV_SENSOR_ROTATION_PITCH_90 && covariance)
                                     {
-                                        proximityString += "最大距离： "+QString::number(max_distance,10)+"cm" + "最小距离： "+QString::number(min_distance,10) + "cm"\
-                                               + "方向："+QString::number(orientation,10) + "  距离：" +QString::number(current_distance,10);
+                                        proximityString += QString("2.下方 ")+"Max:"+QString::number(max_distance,10)+"cm" + "Min:"+QString::number(min_distance,10) + "cm"\
+                                                +  "距离障碍物:" +QString::number(current_distance,10) + "cm";
                                     }
                                     if(""!=proximityString)
-                                    emit sendMessage(MAVLINK_MSG_ID_DISTANCE_SENSOR, proximityString);
+                                         emit sendMessage(MAVLINK_MSG_ID_DISTANCE_SENSOR, proximityString);
 
                                     break;
                                 }
