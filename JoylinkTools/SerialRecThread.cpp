@@ -353,6 +353,17 @@ void SerialRecThread::run()
                                 //qDebug()<<QString::number(m_message.msgid,10);
                                 switch(m_message.msgid)
                                 {
+                                    case MAVLINK_MSG_ID_DATA64:
+                                    {
+                                        char data[64];
+                                        char type = mavlink_msg_data64_get_type(&m_message);
+                                        mavlink_msg_data64_get_data(&m_message, (uint8_t*)&data);
+                                        QString str(QByteArray(data, mavlink_msg_data64_get_len(&m_message)));
+                                        str = str + ": " + QString(QByteArray(&type,1));
+                                        sendMessage(MAVLINK_MSG_ID_DATA64, str);
+                                        break;
+                                    }
+
                                     case MAVLINK_MSG_ID_HEARTBEAT: /*#0*/
                                     {
                                         uint8_t flight_mode = mavlink_msg_heartbeat_get_custom_mode(&m_message);

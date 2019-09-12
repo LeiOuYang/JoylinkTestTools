@@ -5,6 +5,7 @@
 #include <QSerialPortInfo>
 #include <QSerialPort>
 #include <QList>
+#include <QTimer>
 #include "SerialRecThread.h"
 #include "Serialsendthread.h"
 
@@ -18,6 +19,7 @@ class MainWindow : public QMainWindow
 public slots:
     void appendTextSrcTextEdit(QString str);
 
+    void timerSendData();
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -29,6 +31,7 @@ private:
     char parseTextEditUpdateEnable;
     char srcTextEditUpdateEnable;
     SerialSendThread* serialSendThread;
+    QTimer timer1;
 
 public:
     void updateSerialComBox(void);
