@@ -37,62 +37,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->serialRecThread, SIGNAL(updateTextTextEdit1(QString)), this, SLOT(updateTextTextEdit(QString)));
     connect(this->serialRecThread, SIGNAL(updateArmLabel(QString)), this, SLOT(updateArmLabelText(QString)));
     connect(this->serialRecThread, SIGNAL(sendMessage(int,QString)), this, SLOT(updateUiArray(int, QString)));
-    connect(&this->timer1, &QTimer::timeout, this, &MainWindow::timerSendData);
-    this->timer1.start(2000);
-}
-
-void MainWindow::timerSendData(void)
-{
-    static int count = 0;
-
-    mavlink_data16_t data16;
-    mavlink_data32_t data32;
-    mavlink_data64_t data64;
-
-    if(0==count)
-    {
-        const char d16[]="Cdata16DATA16\r\n";
-        const char d32[]="Cdata32DATA32\r\n";
-        const char d64[]="Cdata64DATA64\r\n";
-        count = 1;
-        data16.len = sizeof(d16)-1;
-        data32.len = sizeof(d32)-1;
-        data64.len = sizeof(d64)-1;
-        data16.type=data32.type=data64.type='C';
-        for(int i=0; i<sizeof(d16)-1; ++i) data16.data[i] = d16[i];
-        for(int i=0; i<sizeof(d32)-1; ++i) data32.data[i] = d32[i];
-        for(int i=0; i<sizeof(d64)-1; ++i) data64.data[i] = d64[i];
-    }else if(1==count)
-    {
-        count = 0;
-        const char d16[]="Ndata16DATA16\r\n";
-        const char d32[]="Ndata32DATA32\r\n";
-        const char d64[]="Ndata64DATA64\r\n";
-        data16.len = sizeof(d16)-1;
-        data32.len = sizeof(d32)-1;
-        data64.len = sizeof(d64)-1;
-        data16.type=data32.type=data64.type='N';
-        for(int i=0; i<sizeof(d16)-1; ++i) data16.data[i] = d16[i];
-        for(int i=0; i<sizeof(d32)-1; ++i) data32.data[i] = d32[i];
-        for(int i=0; i<sizeof(d64)-1; ++i) data64.data[i] = d64[i];
-    }
-    if(this->serialSendThread->serialPort->isOpen())
-    {
-        mavlink_msg_data16_send_struct(MAVLINK_COMM_1, &data16);
-        mavlink_msg_data32_send_struct(MAVLINK_COMM_1, &data32);
-        mavlink_msg_data64_send_struct(MAVLINK_COMM_1, &data64);
-    }
 }
 
 void MainWindow::updateUiArray(int id, QString str)
 {
     switch(id)
     {
-        case 171:
-        {
-            ui->dataSrcTextEdit->append(str);
-            break;
-        }
         case 1:
         {
             ui->simplePlainTextEdit->setReadOnly(false);
