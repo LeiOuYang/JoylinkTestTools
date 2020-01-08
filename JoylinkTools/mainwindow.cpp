@@ -1287,17 +1287,55 @@ void MainWindow::on_yawControlPushButton_clicked()
         return;
     }
 
-    mavlink_set_position_target_global_int_t targetPos;
-    targetPos.coordinate_frame = MAV_FRAME_BODY_NED;  //NED框架
-    targetPos.type_mask = 0;
-    targetPos.type_mask |= MAVLINK_SET_POS_TYPE_MASK_POS_IGNORE;
-    targetPos.type_mask |= MAVLINK_SET_POS_TYPE_MASK_ACC_IGNORE;
+    mavlink_set_position_target_local_ned_t pos_target;
+    pos_target.target_system = 1;
+    pos_target.target_component = 1;
+    pos_target.coordinate_frame = MAV_FRAME_BODY_OFFSET_NED;
+    pos_target.time_boot_ms = 0;
+    pos_target.type_mask = 0b00111000111;
+    pos_target.afx = pos_target.afy = pos_target.afz = 0.0;
+    pos_target.vx = pos_target.vy = pos_target.vz = 0.0;
+    pos_target.x = 0;
+    pos_target.y = pos_target.z = 0;
+    pos_target.yaw =yawAgle * (PI/180.0) ; pos_target.yaw_rate = yawAgleRate * (PI/180.0);
 
-    targetPos.afx = 0;  targetPos.afy = 0; targetPos.afz = 0;
-    targetPos.lat_int = 0; targetPos.lon_int = 0; targetPos.alt = 0;
-    targetPos.target_component = 0x01; targetPos.target_system = 0x01;
-    targetPos.vx = targetPos.vy = targetPos.vz = 0.5;
-    targetPos.yaw = yawAgle * (PI/180.0);
-    targetPos.yaw_rate = yawAgleRate * (PI/180.0);
-    mavlink_msg_set_position_target_global_int_send_struct(MAVLINK_COMM_1, &targetPos);
+    mavlink_msg_set_position_target_local_ned_send_struct(MAVLINK_COMM_1, &pos_target);
+}
+
+void MainWindow::on_YawPushButton_clicked()
+{
+    QString yawString = ui->yawAgleLineEdit->text().trimmed();
+    QString yawRateString = ui->yawAgleRateLineEdit->text().trimmed();
+
+    if(yawString.isEmpty()||yawString.isNull()||yawRateString.isEmpty()||yawRateString.isNull()){
+        QMessageBox::information(this, tr("ERROR"),"数据无效",QMessageBox::Ok);
+        return;
+    }
+
+    bool ok = false;
+    float yawAgle = yawString.toFloat(&ok);
+    if(!ok) {
+        QMessageBox::information(this, tr("ERROR"),"数据无效",QMessageBox::Ok);
+        return;
+    }
+    float yawAgleRate = yawRateString.toFloat(&ok);
+    if(!ok) {
+        QMessageBox::information(this, tr("ERROR"),"数据无效",QMessageBox::Ok);
+        return;
+    }
+
+    mavlink_command_long_t  command;
+    command.command = MAV_CMD_CONDITION_YAW;
+    command.confirmation = 0;
+    command.param1 = yawAgle;
+    command.param2 = 0;
+    command.param3 = 1.0;
+    command.param4 = 0.0;
+    command.param5 = 0.0;
+    command.param6 = 0.0;
+    command.param7 = 0.0;
+    command.target_component = 1;
+    command.target_system = 1;
+
+    mavlink_msg_command_long_send_struct(MAVLINK_COMM_1, &command);
 }

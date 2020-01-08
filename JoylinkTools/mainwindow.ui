@@ -1444,6 +1444,19 @@
         <string>航向</string>
        </property>
       </widget>
+      <widget class="QPushButton" name="YawPushButton">
+       <property name="geometry">
+        <rect>
+         <x>290</x>
+         <y>150</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>YAW</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QLabel" name="commandAckLabel">
       <property name="geometry">
