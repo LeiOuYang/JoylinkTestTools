@@ -1256,3 +1256,48 @@ void MainWindow::on_saveCompassCalPushButton_clicked()
         mavlink_msg_command_long_send_struct(MAVLINK_COMM_1, &command);
     }
 }
+
+void MainWindow::on_yawControlPushButton_clicked()
+{
+    #define MAVLINK_SET_POS_TYPE_MASK_POS_IGNORE      ((1<<0) | (1<<1) | (1<<2))
+    #define MAVLINK_SET_POS_TYPE_MASK_VEL_IGNORE      ((1<<3) | (1<<4) | (1<<5))
+    #define MAVLINK_SET_POS_TYPE_MASK_ACC_IGNORE      ((1<<6) | (1<<7) | (1<<8))
+    #define MAVLINK_SET_POS_TYPE_MASK_FORCE           (1<<9)
+    #define MAVLINK_SET_POS_TYPE_MASK_YAW_IGNORE      (1<<10)
+    #define MAVLINK_SET_POS_TYPE_MASK_YAW_RATE_IGNORE (1<<11)
+
+    const float PI = 3.1415926;
+    QString yawString = ui->yawAgleLineEdit->text().trimmed();
+    QString yawRateString = ui->yawAgleRateLineEdit->text().trimmed();
+
+    if(yawString.isEmpty()||yawString.isNull()||yawRateString.isEmpty()||yawRateString.isNull()){
+        QMessageBox::information(this, tr("ERROR"),"数据无效",QMessageBox::Ok);
+        return;
+    }
+
+    bool ok = false;
+    float yawAgle = yawString.toFloat(&ok);
+    if(!ok) {
+        QMessageBox::information(this, tr("ERROR"),"数据无效",QMessageBox::Ok);
+        return;
+    }
+    float yawAgleRate = yawRateString.toFloat(&ok);
+    if(!ok) {
+        QMessageBox::information(this, tr("ERROR"),"数据无效",QMessageBox::Ok);
+        return;
+    }
+
+    mavlink_set_position_target_global_int_t targetPos;
+    targetPos.coordinate_frame = MAV_FRAME_BODY_NED;  //NED框架
+    targetPos.type_mask = 0;
+    targetPos.type_mask |= MAVLINK_SET_POS_TYPE_MASK_POS_IGNORE;
+    targetPos.type_mask |= MAVLINK_SET_POS_TYPE_MASK_ACC_IGNORE;
+
+    targetPos.afx = 0;  targetPos.afy = 0; targetPos.afz = 0;
+    targetPos.lat_int = 0; targetPos.lon_int = 0; targetPos.alt = 0;
+    targetPos.target_component = 0x01; targetPos.target_system = 0x01;
+    targetPos.vx = targetPos.vy = targetPos.vz = 0.5;
+    targetPos.yaw = yawAgle * (PI/180.0);
+    targetPos.yaw_rate = yawAgleRate * (PI/180.0);
+    mavlink_msg_set_position_target_global_int_send_struct(MAVLINK_COMM_1, &targetPos);
+}

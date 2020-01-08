@@ -77,6 +77,7 @@ private slots:
     void on_compassAllRadioButton_clicked();
     void on_compassExtraRadioButton_clicked();
     void on_saveCompassCalPushButton_clicked();
+    void on_yawControlPushButton_clicked();
 };
 
 #endif // MAINWINDOW_H
